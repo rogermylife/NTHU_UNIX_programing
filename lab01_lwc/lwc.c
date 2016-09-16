@@ -2,6 +2,9 @@
 #include<stdlib.h>
 #include<stdbool.h>
 #include<string.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include<fcntl.h>
 
 static long long int total_lines;
 static long long int total_words;
@@ -9,9 +12,21 @@ static long long int total_bytes;
 
 static bool print_lines,print_words,print_bytes;
 
-void wc(char* filename)
+void wc(char* const filename)
 {
     printf("input file %s\n",filename);
+    int fd = open(filename,O_RDONLY);
+    if(fd==-1)
+    {
+        printf("wc: %s: No such file or directory\n",filename);
+        exit(2);
+    }
+    if(close(fd)!=0)
+    {
+        printf("wc: %s: close file error\n",filename);
+        exit(2);
+    }
+
 }
 
 
