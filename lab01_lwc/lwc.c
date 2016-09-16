@@ -2,9 +2,9 @@
 #include<stdlib.h>
 #include<stdbool.h>
 #include<string.h>
-#include <sys/types.h>
-#include <sys/stat.h>
 #include<fcntl.h>
+#include<unistd.h>
+#define BUFFER_SIZE 16*1024
 
 static long long int total_lines;
 static long long int total_words;
@@ -21,6 +21,17 @@ void wc(char* const filename)
         printf("wc: %s: No such file or directory\n",filename);
         exit(2);
     }
+    bool inWord = false;
+    int  linepos = 0;
+    int bytesRead =0;
+    char buf[BUFFER_SIZE+1];
+    long long int bytes = 0;
+    while((bytesRead=read(fd,buf,BUFFER_SIZE)) > 0 )
+    {
+        const char *p = buf;
+        bytes += bytesRead;
+    }
+    printf("bytes %lld\n",bytes);
     if(close(fd)!=0)
     {
         printf("wc: %s: close file error\n",filename);
