@@ -4,13 +4,15 @@
 #include<string.h>
 #include<fcntl.h>
 #include<unistd.h>
+#include<ctype.h>
 #define BUFFER_SIZE 16*1024
+#define NUMBER_WIDTH 5
 
-static long long int total_lines;
-static long long int total_words;
-static long long int total_bytes;
+static long long int totalLines;
+static long long int totalWords;
+static long long int totalBytes;
 
-static bool print_lines,print_words,print_bytes;
+static bool printLines,printWords,printBytes;
 
 void wc(char* const filename)
 {
@@ -22,16 +24,61 @@ void wc(char* const filename)
         exit(2);
     }
     bool inWord = false;
-    int  linepos = 0;
+    int  linePos = 0;
     int bytesRead =0;
     char buf[BUFFER_SIZE+1];
     long long int bytes = 0;
+    long long int words = 0;
+    long long int lines = 0;
     while((bytesRead=read(fd,buf,BUFFER_SIZE)) > 0 )
     {
         const char *p = buf;
         bytes += bytesRead;
+        do
+        {
+            switch (*p++)
+            {
+                case '\n':
+                    ++lines;
+                case '\r'://carriage return
+                case '\f'://form feed
+                    linePos=0;
+                    goto word_separator;
+                case '\t':
+                    linePos += 8-(linePos %8);
+                    goto word_separator;
+                case ' ':
+                    linePos++;
+                word_separator:
+                    words += inWord;
+                    inWord = false;
+                    break;
+                default:
+                    if(isprint(p[-1]))
+                    {
+                        linePos++;
+                        if(isspace(p[-1]))
+                            goto word_separator;
+                        inWord = true;
+                    }
+                    break;
+            }
+            printf("p %d inWord %d\n",*(p-1),inWord);
+        }while(--bytesRead);
     }
-    printf("bytes %lld\n",bytes);
+    words +=inWord;
+    //printf("bytes %lld words %lld lines %lld\n",bytes,words,lines);
+    static char const FORMAT_INT[]="%*lld";
+    if(printLines)
+        printf(FORMAT_INT,NUMBER_WIDTH,lines);
+    if(printWords)
+        printf(FORMAT_INT,NUMBER_WIDTH,words);
+    if(printBytes)
+        printf(FORMAT_INT,NUMBER_WIDTH,bytes);
+    printf("%*s\n",10,filename);
+    totalLines +=lines;
+    totalWords +=words;
+    totalBytes +=bytes;
     if(close(fd)!=0)
     {
         printf("wc: %s: close file error\n",filename);
@@ -43,8 +90,8 @@ void wc(char* const filename)
 
 int main(int argc,char **argv)
 {
-    print_lines=print_words=print_bytes=false;
-    total_lines=total_words=total_bytes=0;
+    printLines=printWords=printBytes=false;
+    totalLines=totalWords=totalBytes=0;
     for(int i=1;i<argc;i++)
     {
         int l=strlen(argv[i]);
@@ -55,13 +102,13 @@ int main(int argc,char **argv)
                 switch (argv[i][j])
                 {
                     case 'l':
-                        print_lines=true;
+                        printLines=true;
                         break;
                     case 'w':
-                        print_words=true;
+                        printWords=true;
                         break;
                     case 'c':
-                        print_bytes=true;
+                        printBytes=true;
                         break;
                     default:
                         printf("wc: invalid option -- \'%c\'\n\
@@ -73,8 +120,8 @@ Try \'wc --help\' for more information.\n",argv[i][j]);
         }
     }
 
-    if(!(print_lines||print_words||print_bytes))
-        print_lines=print_words=print_bytes=true;
+    if(!(printLines||printWords||printBytes))
+        printLines=printWords=printBytes=true;
     for(int i=1;i<argc;i++)
     {
         if(argv[i][0]!='-')
