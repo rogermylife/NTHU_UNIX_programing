@@ -14,13 +14,25 @@ static long long int totalBytes;
 
 static bool printLines,printWords,printBytes;
 
-void wc(char* const filename)
+void writeCount(char* const fileName,long long int lines,long long int words,long long int bytes)
 {
-    printf("input file %s\n",filename);
-    int fd = open(filename,O_RDONLY);
+    static char const FORMAT_INT[]="%*lld";
+    if(printLines)
+        printf(FORMAT_INT,NUMBER_WIDTH,lines);
+    if(printWords)
+        printf(FORMAT_INT,NUMBER_WIDTH,words);
+    if(printBytes)
+        printf(FORMAT_INT,NUMBER_WIDTH,bytes);
+    printf(" %s\n",fileName);
+}
+
+void wc(char* const fileName)
+{
+    //printf("input file %s\n",fileName);
+    int fd = open(fileName,O_RDONLY);
     if(fd==-1)
     {
-        printf("wc: %s: No such file or directory\n",filename);
+        printf("wc: %s: No such file or directory\n",fileName);
         exit(2);
     }
     bool inWord = false;
@@ -63,25 +75,18 @@ void wc(char* const filename)
                     }
                     break;
             }
-            printf("p %d inWord %d\n",*(p-1),inWord);
+            //printf("p %d inWord %d\n",*(p-1),inWord);
         }while(--bytesRead);
     }
     words +=inWord;
     //printf("bytes %lld words %lld lines %lld\n",bytes,words,lines);
-    static char const FORMAT_INT[]="%*lld";
-    if(printLines)
-        printf(FORMAT_INT,NUMBER_WIDTH,lines);
-    if(printWords)
-        printf(FORMAT_INT,NUMBER_WIDTH,words);
-    if(printBytes)
-        printf(FORMAT_INT,NUMBER_WIDTH,bytes);
-    printf("%*s\n",10,filename);
+    writeCount(fileName,lines,words,bytes);
     totalLines +=lines;
     totalWords +=words;
     totalBytes +=bytes;
     if(close(fd)!=0)
     {
-        printf("wc: %s: close file error\n",filename);
+        printf("wc: %s: close file error\n",fileName);
         exit(2);
     }
 
@@ -116,15 +121,21 @@ Try \'wc --help\' for more information.\n",argv[i][j]);
                         return 2;
                 }
             }
-            printf("option %s  len %d\n",argv[i],l);
+            //printf("option %s  len %d\n",argv[i],l);
         }
     }
 
     if(!(printLines||printWords||printBytes))
         printLines=printWords=printBytes=true;
+    int nFiles=0;
     for(int i=1;i<argc;i++)
     {
         if(argv[i][0]!='-')
+        {
             wc(argv[i]);
+            ++nFiles;
+        }
     }
+    if(nFiles>1)
+        writeCount("Total",totalLines,totalWords,totalBytes);
 }
