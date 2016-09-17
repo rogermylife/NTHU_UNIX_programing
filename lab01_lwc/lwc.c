@@ -33,7 +33,7 @@ void wc(char* const fileName)
     if(fd==-1)
     {
         printf("wc: %s: No such file or directory\n",fileName);
-        exit(2);
+        return;
     }
     bool inWord = false;
     int  linePos = 0;
