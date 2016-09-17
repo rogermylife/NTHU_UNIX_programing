@@ -7,4 +7,4 @@ There are my every labs' codes as follow.
 ##labs
 * lab01-lwc:
     
-    make a program similer to unix command 'wc'
+    make a program similer to unix command `wc`
