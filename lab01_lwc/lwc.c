@@ -6,24 +6,28 @@
 #include<unistd.h>
 #include<ctype.h>
 #define BUFFER_SIZE 16*1024
-#define NUMBER_WIDTH 5
+#define NUMBER_WIDTH 1
 
 static long long int totalLines;
 static long long int totalWords;
 static long long int totalBytes;
+static int numberWidth;
 
-static bool printLines,printWords,printBytes;
+static bool printLines,printWords,printBytes,paraOne;
 
 void writeCount(char* const fileName,long long int lines,long long int words,long long int bytes)
 {
-    static char const FORMAT_INT[]="%*lld";
+    static char const FORMAT_INT[]="%*lld ";
+    if(paraOne)
+        numberWidth=1;
+    printf("check one %d\n",numberWidth);
     if(printLines)
-        printf(FORMAT_INT,NUMBER_WIDTH,lines);
+        printf(FORMAT_INT,numberWidth,lines);
     if(printWords)
-        printf(FORMAT_INT,NUMBER_WIDTH,words);
+        printf(FORMAT_INT,numberWidth,words);
     if(printBytes)
-        printf(FORMAT_INT,NUMBER_WIDTH,bytes);
-    printf(" %s\n",fileName);
+        printf(FORMAT_INT,numberWidth,bytes);
+    printf("%s\n",fileName);
 }
 
 void wc(char* const fileName)
@@ -84,6 +88,12 @@ void wc(char* const fileName)
     totalLines +=lines;
     totalWords +=words;
     totalBytes +=bytes;
+    int width = 1;
+    for (; 10 <= bytes; bytes /= 10)
+        ++width;
+    //printf("check %d \n",width);
+    if(width>numberWidth)
+        numberWidth = width;
     if(close(fd)!=0)
     {
         printf("wc: %s: close file error\n",fileName);
@@ -97,6 +107,8 @@ int main(int argc,char **argv)
 {
     printLines=printWords=printBytes=false;
     totalLines=totalWords=totalBytes=0;
+    paraOne=true;
+    numberWidth=1;
     for(int i=1;i<argc;i++)
     {
         int l=strlen(argv[i]);
@@ -127,6 +139,8 @@ Try \'wc --help\' for more information.\n",argv[i][j]);
 
     if(!(printLines||printWords||printBytes))
         printLines=printWords=printBytes=true;
+    if(printLines&printWords||printLines&printBytes||printWords&printBytes)
+        paraOne=false;
     int nFiles=0;
     for(int i=1;i<argc;i++)
     {
