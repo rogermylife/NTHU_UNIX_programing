@@ -1,3 +1,6 @@
+
+#include<sys/types.h>
+#include<sys/stat.h>
 #include<stdio.h>
 #include<stdlib.h>
 #include<stdbool.h>
@@ -5,22 +8,23 @@
 #include<fcntl.h>
 #include<unistd.h>
 #include<ctype.h>
-#define BUFFER_SIZE 16*1024
 #define NUMBER_WIDTH 1
+#define BUFFER_SIZE 16*1024
 
 static long long int totalLines;
 static long long int totalWords;
 static long long int totalBytes;
 static int numberWidth;
+static int nFiles;
 
 static bool printLines,printWords,printBytes,paraOne;
 
 void writeCount(char* const fileName,long long int lines,long long int words,long long int bytes)
 {
     static char const FORMAT_INT[]="%*lld ";
-    if(paraOne)
+    if(paraOne&&nFiles==1)
         numberWidth=1;
-    printf("check one %d\n",numberWidth);
+    //printf("check one %d\n",numberWidth);
     if(printLines)
         printf(FORMAT_INT,numberWidth,lines);
     if(printWords)
@@ -88,12 +92,6 @@ void wc(char* const fileName)
     totalLines +=lines;
     totalWords +=words;
     totalBytes +=bytes;
-    int width = 1;
-    for (; 10 <= bytes; bytes /= 10)
-        ++width;
-    //printf("check %d \n",width);
-    if(width>numberWidth)
-        numberWidth = width;
     if(close(fd)!=0)
     {
         printf("wc: %s: close file error\n",fileName);
@@ -105,8 +103,10 @@ void wc(char* const fileName)
 
 int main(int argc,char **argv)
 {
+    long long int totalSize = 0;
+    
     printLines=printWords=printBytes=false;
-    totalLines=totalWords=totalBytes=0;
+    nFiles=totalLines=totalWords=totalBytes=0;
     paraOne=true;
     numberWidth=1;
     for(int i=1;i<argc;i++)
@@ -135,21 +135,40 @@ Try \'wc --help\' for more information.\n",argv[i][j]);
             }
             //printf("option %s  len %d\n",argv[i],l);
         }
+        else
+        {
+            struct stat sb;
+            
+            if(stat(argv[i],&sb )!=-1)
+            { 
+                if(S_ISREG(sb.st_mode))
+                {
+                    totalSize+=sb.st_size;
+                    ++nFiles;
+                }
+            }
+        }
+        int width = 1;
+        for (long long int tempB=totalSize; 10 <= tempB; tempB /= 10)
+            ++width;
+        //printf("check st_size %lld width%d \n",width);
+        if(width>numberWidth)
+            numberWidth = width;
     }
 
     if(!(printLines||printWords||printBytes))
         printLines=printWords=printBytes=true;
     if(printLines&printWords||printLines&printBytes||printWords&printBytes)
         paraOne=false;
-    int nFiles=0;
+    //else
+    //    printf("PARA only one\n");
     for(int i=1;i<argc;i++)
     {
         if(argv[i][0]!='-')
         {
             wc(argv[i]);
-            ++nFiles;
         }
     }
     if(nFiles>1)
-        writeCount("Total",totalLines,totalWords,totalBytes);
+        writeCount("total",totalLines,totalWords,totalBytes);
 }
