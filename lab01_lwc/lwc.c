@@ -16,6 +16,7 @@ static long long int totalWords;
 static long long int totalBytes;
 static int numberWidth;
 static int nFiles;
+static int rv;
 
 static bool printLines,printWords,printBytes,paraOne;
 
@@ -40,7 +41,9 @@ void wc(char* const fileName)
     int fd = open(fileName,O_RDONLY);
     if(fd==-1)
     {
-        printf("wc: %s: No such file or directory\n",fileName);
+        fprintf(stderr,"wc: %s: No such file or directory\n",fileName);
+        rv=1;
+        nFiles++;
         return;
     }
     bool inWord = false;
@@ -94,8 +97,8 @@ void wc(char* const fileName)
     totalBytes +=bytes;
     if(close(fd)!=0)
     {
-        printf("wc: %s: close file error\n",fileName);
-        exit(2);
+        fprintf(stderr,"wc: %s: close file error\n",fileName);
+        exit(1);
     }
 
 }
@@ -128,9 +131,9 @@ int main(int argc,char **argv)
                         printBytes=true;
                         break;
                     default:
-                        printf("wc: invalid option -- \'%c\'\n\
+                        fprintf(stderr,"wc: invalid option -- \'%c\'\n\
 Try \'wc --help\' for more information.\n",argv[i][j]);
-                        return 2;
+                        return 1;
                 }
             }
             //printf("option %s  len %d\n",argv[i],l);
