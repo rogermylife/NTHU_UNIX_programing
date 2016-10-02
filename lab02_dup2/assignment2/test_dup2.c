@@ -29,7 +29,11 @@ int main(void){
 
     //redirect standard output
     int newfd = -1;
-    if((newfd = mdup2(file,1)) < 0)return 1;
+    if((newfd = mdup2(file,1)) < 0)
+    {
+        printf("dup faild");
+        return 1;
+    }
     
     //now printf will print the string to file
     printf("%s\n", buff);
