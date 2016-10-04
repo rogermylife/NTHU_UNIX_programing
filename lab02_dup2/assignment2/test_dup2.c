@@ -22,19 +22,22 @@ int main(void){
     FunDup2 mdup2 = mydup2;
 
     //Open a file to write
+    //printf("XDD");
     int file = open("myfile.txt", O_WRONLY | O_CREAT);
     if(file < 0)return 1;
+    //printf("XDDD");
 
     char buff[] = "Pen-Pineapple-Apple-Pen\n";
 
     //redirect standard output
     int newfd = -1;
-    if((newfd = mdup2(file,1)) < 0)
+    if((newfd = dup2(file,1)) < 0)
     {
-        printf("dup faild");
+        printf("dup faild %d",newfd);
         return 1;
     }
-    
+    printf("11111 dup faild %d",newfd);
+
     //now printf will print the string to file
     printf("%s\n", buff);
     

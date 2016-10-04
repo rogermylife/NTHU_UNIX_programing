@@ -1,10 +1,10 @@
 #include "hw2.h"
 #include <unistd.h>
-#include <linux/fs.h>
-#include <linux/types.h>
-#include <linux/posix_types.h>
-#include <linux/time.h>
-#include <linux/sched.h>
+//#include <linux/fs.h>
+//#include <linux/types.h>
+//#include <linux/posix_types.h>
+//#include <linux/time.h>
+//#include <linux/sched.h>
 #include <errno.h>
 #include <stdio.h>
 /*
@@ -23,7 +23,7 @@ bool get_close_on_exec(unsigned int fd)
 static int dupfd (int fd, int desired_fd)
 {
   int duplicated_fd = dup (fd);
-  printf("duplicate fd %d\n",duplicated_fd);
+  //printf("duplicate fd %d\n",duplicated_fd);
   if (duplicated_fd < 0 || duplicated_fd == desired_fd)
     return duplicated_fd;
   else
@@ -36,16 +36,38 @@ static int dupfd (int fd, int desired_fd)
     }
 }
 
-int isValid(int fd)
+int isValid(int oldfd,int newfd)
 {
     //int err = get_close_on_exec(fd);
+    long max = sysconf(_SC_OPEN_MAX);
+    if(oldfd<0||newfd<0)
+    {
+        fprintf(stderr,"[my_dup]: error: src or des parameter <0.\n");
+        errno = EBADF;
+        return 0;
+    }
+    if(newfd>=max)
+    {
+        fprintf(stderr,"[my_dup]: error: des parameter >=max.\n");
+        errno = EBADF;
+        return 0;
+    }
+    int temp = dup(oldfd);
+    if( temp==-1)
+    {
+        fprintf(stderr,"[my_dup]: error: src is inactive\n");
+        errno = EBADF;
+        return 0;
+    }
     return 1;
 }
 int mydup2(int oldfd, int newfd){
     //Your implementation here
-    int result = isValid(oldfd);
+    int result = isValid(oldfd,newfd);
     if(!result || oldfd==newfd)
         return -1;
+    if(oldfd==newfd)
+        return oldfd;
     close (newfd);
     result = dupfd (oldfd, newfd);
     if (result == -1 && (errno == EMFILE || errno == EINVAL))
