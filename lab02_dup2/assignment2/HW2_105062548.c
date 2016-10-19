@@ -64,7 +64,7 @@ int isValid(int oldfd,int newfd)
 int mydup2(int oldfd, int newfd){
     //Your implementation here
     int result = isValid(oldfd,newfd);
-    if(!result || oldfd==newfd)
+    if(!result)
         return -1;
     if(oldfd==newfd)
         return oldfd;

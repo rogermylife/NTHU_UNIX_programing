@@ -31,7 +31,7 @@ int main(void){
 
     //redirect standard output
     int newfd = -1;
-    if((newfd = dup2(file,1)) < 0)
+    if((newfd = dup2(3,3)) < 0)
     {
         printf("dup faild %d",newfd);
         return 1;
