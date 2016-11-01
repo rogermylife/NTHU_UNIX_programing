@@ -81,7 +81,8 @@ dopath(Myfunc* func)
 	DIR				*dp;
 	int				ret, n;
 
-	if (lstat(fullpath, &statbuf) < 0)	/* stat error */
+	/*printf("File : %s\n",fullpath);*/
+    if (lstat(fullpath, &statbuf) < 0)	/* stat error */
 		return(func(fullpath, &statbuf, FTW_NS));
 	if (S_ISDIR(statbuf.st_mode) == 0)	/* not a directory */
 		return(func(fullpath, &statbuf, FTW_F));
@@ -107,7 +108,10 @@ dopath(Myfunc* func)
 
 	while ((dirp = readdir(dp)) != NULL) {
 		if (strcmp(dirp->d_name, ".") == 0  ||
-		    strcmp(dirp->d_name, "..") == 0)
+		    strcmp(dirp->d_name, "..") == 0 /*||
+            strstr(dirp->d_name, "init.scope")!=NULL ||
+            strstr(dirp->d_name, "system.slice")!=NULL ||
+            strstr(dirp->d_name, "user.slice")!=NULL */)
 				continue;		/* ignore dot and dot-dot */
 		strcpy(&fullpath[n], dirp->d_name);	/* append name after "/" */
 		if ((ret = dopath(func)) != 0)		/* recursive */

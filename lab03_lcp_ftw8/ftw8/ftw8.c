@@ -14,7 +14,7 @@ static long	nreg, ndir, nblk, nchr, nfifo, nslink, nsock, ntot;
 int
 main(int argc, char *argv[])
 {
-	int		ret;
+    int		ret;
 
 	if (argc != 2)
 		err_quit("usage:  ftw  <starting-pathname>");
@@ -56,12 +56,11 @@ static size_t pathlen;
 static int					/* we return whatever func() returns */
 myftw(char *pathname, Myfunc *func)
 {
-	/*printf("HIHI\n");*/
     fullpath = path_alloc(&pathlen);	/* malloc PATH_MAX+1 bytes */
 										/* ({Prog pathalloc}) */
     /*printf("fullpath %s\n",fullpath);
     printf("pathlen %d\n",pathlen);*/
-	if (pathlen <= strlen(pathname)) {
+    	if (pathlen <= strlen(pathname)) {
 		pathlen = strlen(pathname) * 2;
 		if ((fullpath = realloc(fullpath, pathlen)) == NULL)
 			err_sys("realloc failed");
@@ -91,6 +90,10 @@ dopath(Myfunc* func)
 	int				ret, n;
 
 	/*printf("now fullpath %s\n",fullpath);*/
+    char cwd[1024];
+    getcwd(cwd,sizeof(cwd));
+    /*printf("File :%s__%s\n",cwd,fullpath);*/
+
     if (lstat(fullpath, &statbuf) < 0)	/* stat error */
 		return(func(fullpath, &statbuf, FTW_NS));
 	if (S_ISDIR(statbuf.st_mode) == 0)	/* not a directory */
@@ -104,8 +107,9 @@ dopath(Myfunc* func)
 		return(ret);
     if(chdir(fullpath)!=0)
     {
-        system("pwd");
-        printf("No such directory: %s\n",fullpath);
+        /*system("pwd");*/
+        /*printf("No such directory: %s\n",fullpath);*/
+        
         return (ret);
     }
     strcpy(fullpath,"./");
@@ -119,7 +123,10 @@ dopath(Myfunc* func)
 	fullpath[n] = 0;
 
 	if ((dp = opendir(fullpath)) == NULL)	/* can't read directory */
+    {
+        chdir("../");
 		return(func(fullpath, &statbuf, FTW_DNR));
+    }
 
 	while ((dirp = readdir(dp)) != NULL) {
 		if (strcmp(dirp->d_name, ".") == 0  ||
@@ -144,7 +151,8 @@ dopath(Myfunc* func)
 static int
 myfunc(const char *pathname, const struct stat *statptr, int type)
 {
-	switch (type) {
+	int GG=0;
+    switch (type) {
 	case FTW_F:
 		switch (statptr->st_mode & S_IFMT) {
 		case S_IFREG:	nreg++;		break;
@@ -162,12 +170,15 @@ myfunc(const char *pathname, const struct stat *statptr, int type)
 		break;
 	case FTW_DNR:
 		err_ret("can't read directory %s", pathname);
+        GG=1;
 		break;
 	case FTW_NS:
-		err_ret("GGstat error for %s", pathname);
+		err_ret("stat error for %s", pathname);
 		break;
 	default:
 		err_dump("unknown type %d for pathname %s", type, pathname);
 	}
+    if(GG==1)
+        return 0;
 	return(0);
 }

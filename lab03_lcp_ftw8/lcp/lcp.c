@@ -19,7 +19,8 @@ int main(int argc,char **argv)
     int holes=0;
     while(read(fin,&buf,1)>0)
     {
-        if(buf!=0&&holes>0)
+        write(fout,&buf,1);
+        /*if(buf!=0&&holes>0)
         {
             lseek(fout,holes,SEEK_CUR);
             write(fout,&buf,1);
@@ -27,13 +28,15 @@ int main(int argc,char **argv)
         }
         else if(buf==0)
         {
-            ++holes;
+            //++holes;
+            write(fout,&buf,1);
             continue;
         }
         else
         {
             write(fout,&buf,1);
         }
+        */
 
     }
 
