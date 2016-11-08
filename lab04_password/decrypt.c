@@ -137,7 +137,7 @@ int main(int argc,char *argv[])
                             //printf("matching %s %s\n",str+len,ans);
                             if(strcmp(str+len,ans)==0)
                             {
-                                printf("YO %s\n",guess[l]);
+                                printf("%s\n",guess[l]);
                                 abort = 1;
                                 #pragma omp flush (abort)
                             }
