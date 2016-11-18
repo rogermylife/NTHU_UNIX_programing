@@ -11,7 +11,7 @@ char *args[100];
 int argc;
 bool background;
 bool psTable[DEFAULT];
-int psIndex;
+int  psIndex;
 void splitInput(char *input)
 {
     char *pch;
