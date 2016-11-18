@@ -10,6 +10,8 @@
 char *args[100];
 int argc;
 bool background;
+bool psTable[DEFAULT];
+int psIndex;
 void splitInput(char *input)
 {
     char *pch;
@@ -72,6 +74,12 @@ int main()
 {
     char pwd[DEFAULT];
     char input[DEFAULT];
+    for (int i=0;i<DEFAULT;i++)
+    {
+        psTable[0]=false;
+    }
+    psTable[1]=true;
+    psIndex=0;
     while(true)
     {
         background=false; 
@@ -116,6 +124,11 @@ int main()
             {
                 if(background==false&&waitpid(pid,NULL,0)!=pid)
                     printf("waitpid error");
+                else if(background==true)
+                {
+                     printf("[%d]  %d\n",i,pid);
+
+                }
             }
         }
         flushArgs();
