@@ -10,7 +10,7 @@
 char *args[100];
 int argc;
 bool background;
-bool psTable[DEFAULT];
+int psTable[DEFAULT]={0};
 int  psIndex;
 void splitInput(char *input)
 {
@@ -18,8 +18,8 @@ void splitInput(char *input)
     pch = strtok(input," \n");
     //strcpy(command,pch);
     //pch = strtok(NULL," \n");
-    if(pch==NULL)
-        printf("pch NULL\n");
+    //if(pch==NULL)
+    //    printf("pch NULL\n");
     while(pch!=NULL)
     {
         if(strcmp(pch,"&")==0)
@@ -39,7 +39,7 @@ void splitInput(char *input)
     }
     if(args[0]!=NULL&&args[argc-1][strlen(args[argc-1])]=='&')
         background=true;
-    printf("check\n");
+    //printf("check\n");
     //strcpy(args,input+strlen(command)+1);
     //printf("test %s %s\n",command,input+strlen(command)+1);
     args[argc]=NULL;
@@ -85,7 +85,8 @@ int main()
         background=false; 
         argc=0;
         getcwd(pwd,DEFAULT);
-        printf("%s $",pwd);
+        printf("$ ");
+        fflush(stdout);
         fgets(input,DEFAULT,stdin);
         //input[strlen(input)-1]='\0';
         splitInput(input);
@@ -98,7 +99,9 @@ int main()
             else
             {
                 int ret = chdir(args[1]);
-                printf("chdir [%d] [%s] \n",ret,args[1]);
+                //printf("chdir [%d] [%s] \n",ret,args[1]);
+                if(ret!=0)
+                    printf("cd: %s: No such file or directory\n",args[1]);
             }
         }
         else if(strcmp(args[0],"pwd")==0)
@@ -107,7 +110,7 @@ int main()
         }
         else
         {
-            pid_t pid;
+            pid_t pid=-1;
             int status;
             if((pid=fork())<0)
             {
@@ -117,7 +120,7 @@ int main()
             {
                 //showExecInfo();
                 if(execvp(args[0],args)<0)
-                    printf("exevp error");
+                    printf("%s: command not found\n",args[0]);
                 exit(7); 
             }
             else
@@ -126,9 +129,26 @@ int main()
                     printf("waitpid error");
                 else if(background==true)
                 {
-                     printf("[%d]  %d\n",i,pid);
+                    /*
+                    printf("[%d] %d\n",++psIndex,pid);
+                    psTable[psIndex]=pid;
+                    */
 
                 }
+                /*
+                for(int i=1;i<=psIndex&&pid!=psTable[psIndex];++i) 
+                {
+                    printf("waitpid(psTable[%d],NULL,WNOHANG\n",i);
+                    if(waitpid(psTable[i],NULL,WNOHANG)==0)
+                        printf("[%d] processing \n",i);
+                    else
+                    {
+                        printf("[%d] Done\n",i);
+                        psTable[psIndex]=0;
+                    }
+                }
+                while(psTable[psIndex]==0&&psIndex>1) --psIndex;
+                */
             }
         }
         flushArgs();
