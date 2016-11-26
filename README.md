@@ -9,20 +9,25 @@ There are my every labs' codes as follow.
     
     make a program similer to unix command `wc`
 
-* lab02_dup2
+* lab02_dup2:
+
     implement `dup2()` function
 
-* lab03_lcp_ftw8
+* lab03_lcp_ftw8:
     
     **lcp**
+
         make a program similer to nix command `cp`. But  different from  `cp`, lcp will write one '\0' when file contain one byte hole.
     
     **ftw**
+
         make a program to analyze all file type in <path>.
 
-* lab04_password
+* lab04_password:
+
     make a program using dictionary attack to decrypt password in shadow file
 
-* lab06_tsh
+* lab06_tsh:
+
     make a tiny shell
 
