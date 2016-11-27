@@ -39,6 +39,7 @@ void splitInput(char *input)
     }
     if(args[0]!=NULL&&args[argc-1][strlen(args[argc-1])]=='&')
         background=true;
+    //strcpy(args[argc++],"0>/dev/null");
     //printf("check\n");
     //strcpy(args,input+strlen(command)+1);
     //printf("test %s %s\n",command,input+strlen(command)+1);
@@ -118,13 +119,41 @@ int main()
             }
             else if(pid==0)
             {
-                //showExecInfo();
+                if(background==true)
+                {
+                    pid_t pid2=-1;
+                    if((pid2=fork())<0)
+                        printf("fork error");
+                    else if(pid2 > 0)
+                        exit(87);
+                    //showExecInfo();
+                    FILE *trash;
+                    if(background==true)
+                    {
+                        
+                        //trash = fopen("/dev/null","r");
+                        //fprintf(trash," ");
+                        //dup2(fileno(trash),0);
+                        close(0);
+                    }
+                    if(execvp(args[0],args)<0)
+                        printf("%s: command not found\n",args[0]);
+                    if(background==true)
+                    {
+                        //fclose(trash);
+                        //remove("temp.XDDDDDDDDDDDDDDDDDDDDDDDDDDDDD");
+                    }
+                    exit(7);
+                }
                 if(execvp(args[0],args)<0)
                     printf("%s: command not found\n",args[0]);
-                exit(7); 
+                exit(7);
+                 
             }
             else
             {
+                if(background==true)
+                    waitpid(pid,NULL,0);
                 if(background==false&&waitpid(pid,NULL,0)!=pid)
                     printf("waitpid error");
                 else if(background==true)
