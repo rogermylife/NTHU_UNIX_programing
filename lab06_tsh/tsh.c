@@ -131,10 +131,10 @@ int main()
                     if(background==true)
                     {
                         
-                        //trash = fopen("/dev/null","r");
+                        trash = fopen("/dev/null","r");
                         //fprintf(trash," ");
-                        //dup2(fileno(trash),0);
-                        close(0);
+                        dup2(fileno(trash),0);
+                        //close(0);
                     }
                     if(execvp(args[0],args)<0)
                         printf("%s: command not found\n",args[0]);
