@@ -3,11 +3,23 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <signal.h>
+#define DEFAULT 1024
 
 
 pid_t shellPgid;
 int shellTerminal;
 int shellIsInteractive;
+int jobIndex=0;
+
+typedef struct job
+{
+    char *command;
+    pid_t pgid;
+    int completed;
+    int stopped;
+    int status;
+}jobTable[DEFAULT];
+
 
 void initShell()
 {
