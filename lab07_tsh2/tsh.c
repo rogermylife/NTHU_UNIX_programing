@@ -35,18 +35,18 @@ void initShell()
 
     if(shellIsInteractive)
     {
-        printf("first fore gpid %d init pgid %d\n",tcgetpgrp(shellTerminal),getpgrp());
+        //printf("first fore gpid %d init pgid %d\n",tcgetpgrp(shellTerminal),getpgrp());
         while(tcgetpgrp(shellTerminal)!=(shellPgid=getpgrp()))
             kill(shellPgid,SIGTTIN);
         
         signal (SIGINT, SIG_IGN);
         //signal (SIGQUIT, SIG_IGN);
         //signal (SIGTSTP, SIG_IGN);
-        //signal (SIGTTIN, SIG_IGN);
+        signal (SIGTTIN, SIG_IGN);
         signal (SIGTTOU, SIG_IGN);
-        //signal (SIGCHLD, SIG_IGN); 
+        signal (SIGCHLD, SIG_IGN); 
 
-        printf("orin pgid %d pid %d\n",shellPgid,getpid());
+        //printf("orin pgid %d pid %d\n",shellPgid,getpid());
         shellPgid = getpid();
         if(setpgid(shellPgid,shellPgid))
         {
@@ -98,7 +98,7 @@ void splitInput(char *input)
 
 void jobs()
 {
-    printf("my jobs\n");
+    //printf("my jobs\n");
     for(int i=1;i<=jobIndex;++i)
         if(jobTable[i].pid!=0)
             printf("[%d]\t\t %s\n",i,jobTable[i].command);
@@ -183,7 +183,8 @@ int main()
         argc=0;
         getcwd(pwd,DEFAULT);
         checkJobs();
-        printf("%d %d $ ",getpid(),getpgid(0)); 
+        printf("$ "); 
+        //printf("%d %d $ ",getpid(),getpgid(0)); 
         fflush(stdout);
         fgets(input,DEFAULT,stdin);
         if(input[strlen(input)-1]=='\n')
@@ -246,7 +247,7 @@ int main()
                 if(execvp(args[0],args)<0)
                     printf("%s: command not found\n",args[0]);
                 //printf("why");
-                printf("0 0 \n");
+                //printf("0 0 \n");
                 exit(7);
             }
             else
