@@ -31,3 +31,19 @@ There are my every labs' codes as follow.
 
     make a tiny shell
 
+* lab07_tsh2
+
+    make a tiny but better shell
+
+* lab10_byteorder_socket
+
+    **byteorder**
+        show little-endian or big-endian based on machine used.
+
+    **socket**
+        a simple server-client socket server
+* midterm
+
+* midterm2
+
+* final

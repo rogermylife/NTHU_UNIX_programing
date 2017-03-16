@@ -25,7 +25,7 @@ int main()
         printf("LITTLE ENDIAN\n");
 
 
-    int a=0x410042;
+    int a=0x41000042;
     if(strcmp(&a,"B")==0)
         printf("Little endian\n");
     else if(strcmp(&a,"A")==0)
